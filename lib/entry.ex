@@ -8,7 +8,7 @@ defmodule Entry do
       TakeInput.retake(wallet, block_size, num_transaction, dc)
     else
       IO.puts("Performed all transactions")
-      IO.inspect(wallet)
+      IO. puts "Final wallet --->  #{inspect (wallet)}";
       exit(:normal)
     end
 

@@ -19,12 +19,14 @@ defmodule TakeInput do
         updated_input = Map.put(updated_input, sender_address, sender_balance - amount)
         updated_input = Map.put(updated_input, receiver_address, receiver_balance + amount)
         # IO.inspect updated_input
-        # IO.puts "CHAIN == #{inspect chain}"
+        IO.puts "Transaction completed, continue further...."
         chain = chain |> BlockChain.new_transaction(sender_address, receiver_address, amount)
+        [chain, block_size] = check_block_creation(block_size-1, num_transaction, chain)
+
         #  IO.puts "Type of Block = #{is_integer(block_size)}"
         # IO.puts "Blocks = #{block_size}"
         # IO.puts "AFTER CHAIN == #{inspect chain}"
-        [chain, block_size] = check_block_creation(block_size, num_transaction, chain)
+        # [chain, block_size] = check_block_creation(block_size, num_transaction, chain)
 
         # chain = cond do
         # block_size
@@ -47,7 +49,7 @@ defmodule TakeInput do
           chain = chain |> BlockChain.generate_new_Block()
           IO.puts("****** NEW BLOCK CREATED ********")
           IO.inspect(chain)
-          [chain, 2]
+          [chain, 3]
 
         tran_left == 1 ->
           chain = chain |> BlockChain.generate_new_Block()
@@ -56,7 +58,7 @@ defmodule TakeInput do
           [chain, 0]
 
         true ->
-          [chain, b_size - 1]
+          [chain, b_size]
       end
 
     [chain, block_size]
