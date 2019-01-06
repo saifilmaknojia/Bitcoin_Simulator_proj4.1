@@ -49,6 +49,14 @@ defmodule Proj4Test do
   end
 
   test "mining calculates valid proof of work" do
+    block = Block.new [], "PREV_HASH"
+    pow = POW.new block
+    bin = POW.data_to_binary pow, pow.block_input.nonce
+    {hash_int, _} = :crypto.hash(:sha256, bin)
+                    |> Base.encode16
+                    |> Integer.parse(16)
+
+    assert pow.target_value > hash_int
   end
 
   test "mining appends current transactions to block" do
