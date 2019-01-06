@@ -1,23 +1,35 @@
 defmodule Block do
-  defstruct [:previous_block_hash, :current_hash, :nonce, :current_transactions, :timestamp]
+  defstruct [:timestamp, :transactions, :nonce, :hash, :prev_hash]
 
-  def genesis do
-    %Block{
-      current_transactions: [],
-      previous_block_hash: "THIS_IS_THE_GENESIS_BLOCK",
-      timestamp: NaiveDateTime.utc_now() |> NaiveDateTime.to_string()
+  def new transactions, prev_hash, tgt do
+    new_block = %Block {
+      timestamp: NaiveDateTime.utc_now |> NaiveDateTime.to_string,
+      transactions: transactions,
+      prev_hash: prev_hash
+    }
+
+    {nonce, hash} = new_block
+    |> POW.new(tgt)
+    |> POW.calculate(tgt)
+
+    %{new_block | nonce: nonce, hash: hash}
+  end
+
+  def genesis_block do
+    %Block {
+      timestamp: NaiveDateTime.utc_now |> NaiveDateTime.to_string,
+      transactions: [],
+      nonce: 0,
+      prev_hash: "GENESIS_BLOCK"
     }
   end
 
-  def new(transactions, prev_hash) do
-    block = %Block{
-      current_transactions: transactions,
-      previous_block_hash: prev_hash,
-      timestamp: NaiveDateTime.utc_now()
-    }
+  def get_block_hash block do
+    encoded_block = block |> Poison.encode!
+    :crypto.hash(:sha256, encoded_block) |> Base.encode16
+  end
 
-    proof_of_work = POW.new(block)
-    {nonce, hash} = POW.calculate(proof_of_work)
-    %{block | nonce: nonce, current_hash: hash}
+  def put_block_hash block do
+    %{ block | hash: get_block_hash(block) }
   end
 end
