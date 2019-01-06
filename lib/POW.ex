@@ -3,47 +3,44 @@ defmodule POW do
   defstruct [:target_value, :block_input]
 
   @upper_limit 50_000_000_000_000_000
-  # @target_manipulator 0
-  def new(block, tgt) do
+
+  def new(block) do
     # Target set to 15 for faster mining
-    IO.puts "\n Target Difficulty is set to --> #{tgt}"
-    left_shift = 1 <<< (256 - tgt)
-    IO.puts "Left shift -- #{left_shift}"
+    left_shift = 1 <<< (256 - 15)
     %POW{
       block_input: block,
       target_value: left_shift
     }
   end
 
-  def calculate(%POW{} = work_on, tgt) do
+  def calculate(%POW{} = work_on) do
     IO.puts(
       "\nMining block with transactions: \n#{
         inspect(work_on.block_input.transactions)
       }\n"
     )
 
-    find_appropriate_nonce(work_on, 0, tgt)
+    find_appropriate_nonce(work_on, 0)
   end
 
-  def find_appropriate_nonce(%POW{} = pow, nonce, tgt) when nonce < @upper_limit do
-    bin_data = POW.data_to_binary(pow, nonce, tgt)
+  def find_appropriate_nonce(%POW{} = pow, nonce) when nonce < @upper_limit do
+    bin_data = POW.data_to_binary(pow, nonce)
     hash = :crypto.hash(:sha256, bin_data) |> Base.encode16
     {hash_int, _} = hash |> Integer.parse(16)
 
     if hash_int > pow.target_value do
-      find_appropriate_nonce(pow, nonce + 1, tgt)
+      find_appropriate_nonce(pow, nonce + 1)
     else
-      IO.puts "Found it --- #{hash_int}"
       {nonce, hash}
     end
   end
 
-  def data_to_binary(%POW{} = proof_of_work, nonce, tgt) do
+  def data_to_binary(%POW{} = proof_of_work, nonce) do
     prev_hash = get_previous_blocks_hash(proof_of_work)
     transactions = get_transactions_from_block(proof_of_work)
     transactions = transactions |> Poison.encode!()
     timestamp = get_timestamp(proof_of_work)
-    target_manipulator = get_target_manipulator(tgt)
+    target_manipulator = get_target_manipulator()
     <<
       prev_hash::binary,
       transactions::binary,
@@ -65,9 +62,7 @@ defmodule POW do
     proof_of_work.block_input.timestamp |> to_string
   end
 
-  def get_target_manipulator(tgt) do
-    Integer.to_string(tgt, 16)
+  def get_target_manipulator do
+    Integer.to_string(15, 16)
   end
-
-
 end

@@ -1,16 +1,16 @@
 defmodule Block do
   defstruct [:timestamp, :transactions, :nonce, :hash, :prev_hash]
 
-  def new transactions, prev_hash, tgt do
+  def new transactions, prev_hash do
     new_block = %Block {
       timestamp: NaiveDateTime.utc_now |> NaiveDateTime.to_string,
       transactions: transactions,
       prev_hash: prev_hash
     }
-
+    
     {nonce, hash} = new_block
-    |> POW.new(tgt)
-    |> POW.calculate(tgt)
+    |> POW.new
+    |> POW.calculate
 
     %{new_block | nonce: nonce, hash: hash}
   end

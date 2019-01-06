@@ -11,11 +11,11 @@ defmodule Blockchain do
     }
   end
 
-  def new_block %Blockchain{}=blockchain, tgt do
+  def new_block %Blockchain{}=blockchain do
     prev_hash = hd(blockchain.chain).hash
     transactions = blockchain.current_transactions
 
-    new_block = Block.new transactions, prev_hash, tgt
+    new_block = Block.new transactions, prev_hash
 
     %Blockchain {
       chain: [new_block | blockchain.chain],
@@ -24,9 +24,9 @@ defmodule Blockchain do
   end
 
   def new_transaction %Blockchain{}=blockchain, sender, receiver, amount do
-    #if transaction_is_valid sender, receiver, amount do
-     # update_wallet sender, -amount
-      # update_wallet receiver, amount
+    if transaction_is_valid sender, receiver, amount do
+      update_wallet sender, -amount
+      update_wallet receiver, amount
 
       %Blockchain {
         chain: blockchain.chain,
@@ -38,10 +38,10 @@ defmodule Blockchain do
           } | blockchain.current_transactions
         ]
       }
-   # else
-      # IO.puts "Invalid transaction."
-      # blockchain
-   # end
+    else
+      IO.puts "Invalid transaction."
+      blockchain
+    end
   end
 
   def transaction_is_valid sender, receiver, amount do

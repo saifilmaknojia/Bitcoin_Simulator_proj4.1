@@ -15,13 +15,13 @@ defmodule Node do
     {:reply, value, {node_no, value}}
   end
 
-  def handle_call {:mine, tgt, chain}, _from, state do
+  def handle_call {:mine, chain}, _from, state do
     {n, wallet_value} = state
-    # IO.puts "Node #{n} mining"
+    IO.puts "Node #{n} mining"
 
-    chain = Blockchain.new_block(chain, tgt)
-   # IO.puts "Node #{n} received 5 coins\n"
-    {:reply, chain, {n, wallet_value}}
+    chain = Blockchain.new_block chain
+    IO.puts "Node #{n} received 5 coins\n"
+    {:reply, chain, {n, wallet_value + 5}}
   end
 
   def handle_cast {:update_wallet, amount}, state do
